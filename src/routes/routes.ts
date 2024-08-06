@@ -10,6 +10,7 @@ router.post("/user/create", userController.createUser);
 router.put("/user/update/:id", userController.update);
 router.put("/user/updatePassword/:id", userController.updatePassword);
 router.delete("/user/delete/:id", userController.deleteUser);
+router.delete("/user/:idUser/removeProduct/:idProduct", userController.deleteProduct);
 
 router.get("/product", productController.findAll);
 router.get("/product/:id", productController.findOne);

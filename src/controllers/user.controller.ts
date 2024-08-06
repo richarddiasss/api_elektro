@@ -149,7 +149,29 @@ const prisma = new PrismaClient();
         }
 
     }
-    
+
+    public async deleteProduct(request: Request, response: Response) {
+
+        const { idUser, idProduct } = request.params;
+
+        try {
+            
+            const product = await prisma.product.delete({
+                where:{id: Number(idProduct), userId: Number(idUser)}
+            })
+
+        if(product != null){
+            return response.status(201).json({product, message:"produto deletado"})
+        }
+
+        return response.status(401).json({ message:"produto não encontrado"})
+
+        } catch (error) {
+            return response.status(500).json({message:"Erro interno no servidor", error})
+        }
+
+    }
+
 }
 
 

@@ -71,6 +71,11 @@ class ProductController {
 
         const { id } = request.params;
         const { nome, quantidade, preco, descricao, categoria } = request.body;
+
+        if(quantidade < 0){
+            return response.status(400).json({message:"Inválido passar número negativo em quantidade."})
+        }
+        
         try {
             
             const product = await prisma.product.update({
