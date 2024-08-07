@@ -156,12 +156,12 @@ const prisma = new PrismaClient();
     public async deleteProduct(request: Request, response: Response) {
 
         const id = request.user;
-        const { idUser, idProduct } = request.params;
+        const idProduct = request.params;
 
         try {
             
             const product = await prisma.product.delete({
-                where:{id: Number(idProduct), userId: Number(idUser)}
+                where:{id: Number(idProduct), userId: Number(id)}
             })
 
         if(product != null){
