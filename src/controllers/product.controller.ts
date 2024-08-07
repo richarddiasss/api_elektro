@@ -7,8 +7,10 @@ class ProductController {
 
     public async create(request: Request, response: Response) {
 
+        const userId = request.user;
+        
         try {
-            const { nome, quantidade, preco, descricao, categoria, userId } = request.body;
+            const { nome, quantidade, preco, descricao, categoria} = request.body;
             
             const newProduct = await prisma.product.create({
                 data: {
