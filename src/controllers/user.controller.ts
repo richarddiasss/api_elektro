@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Prisma, PrismaClient } from "@prisma/client";
 import auth from "../config/auth";
+import { use } from "passport";
 
 const prisma = new PrismaClient();
 
@@ -24,7 +25,9 @@ const prisma = new PrismaClient();
                 data:userInput,
             });
 
-            return response.status(201).json({message:"Usuário criado com sucesso", usuario: newUser})
+            const token = auth.generateJWT(newUser);
+
+            return response.status(201).json({message:"Usuário criado com sucesso", usuario: newUser, token: token})
         } catch (error) {
             return response.status(500).json({message:"Erro interno no servidor", error})
         }
@@ -69,7 +72,7 @@ const prisma = new PrismaClient();
 
     public async update(request: Request, response: Response) {
 
-        const { id } = request.params;
+        const id = request.user;
         const {cpf, nome, email } = request.body;
 
         try {
@@ -98,7 +101,7 @@ const prisma = new PrismaClient();
 
     public async updatePassword(request: Request, response: Response) {
 
-        const { id } = request.params;
+        const id = request.user;
         const { password } = request.body;
         const { hash, salt } = auth.generatePassword(password);
 
@@ -127,7 +130,7 @@ const prisma = new PrismaClient();
 
     public async deleteUser(request: Request, response: Response) {
 
-        const { id } = request.params;
+        const id = request.user;
 
         try {
 
@@ -152,6 +155,7 @@ const prisma = new PrismaClient();
 
     public async deleteProduct(request: Request, response: Response) {
 
+        const id = request.user;
         const { idUser, idProduct } = request.params;
 
         try {
@@ -170,6 +174,27 @@ const prisma = new PrismaClient();
             return response.status(500).json({message:"Erro interno no servidor", error})
         }
 
+    }
+
+    public async login(request: Request, response: Response){
+        const {email, password} = request.body;
+
+        const user = await prisma.user.findUnique({where: {email: email}})
+
+        if(user == null){
+            return response.status(400).json({message:"usuário não encontrado"})
+        }
+
+        const {hash, salt} = user
+
+        if(!auth.checkPassword(password, hash, salt)){
+            return response.status(400).json({message:"Senha incorreta"})
+        }
+
+        const token = auth.generateJWT(user);
+        
+        return response.status(201).json({message:"Token enviado" ,token: token})
+         
     }
 
 }
