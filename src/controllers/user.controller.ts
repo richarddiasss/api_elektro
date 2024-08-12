@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Prisma, PrismaClient } from "@prisma/client";
 import auth from "../config/auth";
 import { use } from "passport";
+import { sendEmail } from "../config/mailer";
 
 const prisma = new PrismaClient();
 
@@ -22,9 +23,10 @@ const prisma = new PrismaClient();
             };
             
             const newUser = await prisma.user.create({
-                data:userInput,
+                data:userInput   
             });
 
+            sendEmail(newUser.email, "Boas vindas", "Bem vindo à rede social!");
             const token = auth.generateJWT(newUser);
 
             return response.status(201).json({message:"Usuário criado com sucesso", usuario: newUser, token: token})
@@ -61,7 +63,7 @@ const prisma = new PrismaClient();
 
         try {
 
-            const allUsers = await prisma.user.findMany()
+            const allUsers = await prisma.user.findMany({include: {produtos: true}})
 
             return response.status(201).json({users: allUsers})
         } catch (error) {
@@ -155,14 +157,17 @@ const prisma = new PrismaClient();
 
     public async deleteProduct(request: Request, response: Response) {
 
-        const id = request.user;
-        const idProduct = request.params;
+        const idUser = request.user;
+        const {idProduct} = request.params;
 
         try {
             
             const product = await prisma.product.delete({
-                where:{id: Number(idProduct), userId: Number(id)}
-            })
+                where:{
+                    id: Number(idProduct),
+                    userId: idUser
+
+                }})
 
         if(product != null){
             return response.status(201).json({product, message:"produto deletado"})

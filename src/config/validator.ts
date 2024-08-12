@@ -66,7 +66,7 @@ export class Validator{
                         .exists()
                         .withMessage("A quantidade é obrigatório")
                         .isInt({min: 0})
-                        .withMessage("Email não é válido"),
+                        .withMessage("quantidade é obrigatório e positivo"),
 
                     body("nome")
                         .optional({values: "null"})
@@ -86,7 +86,7 @@ export class Validator{
                     body("quantidade")
                         .optional()
                         .isInt({min: 0})
-                        .withMessage("Email não é válido"),
+                        .withMessage("quantidade é positivo"),
 
                     body("nome")
                         .optional({values: "null"})

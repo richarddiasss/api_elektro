@@ -72,6 +72,7 @@ class ProductController {
     public async update(request: Request, response: Response) {
 
         const { id } = request.params;
+        const idUser = request.user;
         const { nome, quantidade, preco, descricao, categoria } = request.body;
 
         if(quantidade < 0){
@@ -82,7 +83,8 @@ class ProductController {
             
             const product = await prisma.product.update({
                 where: {
-                    id: Number(id) 
+                    id: Number(id),
+                    userId: idUser
                   },
                 data:{
                     nome,
@@ -102,11 +104,16 @@ class ProductController {
     public async delete(request: Request, response: Response) {
 
         const { id } = request.params;
+        const idUser = request.user;
 
         try {
             
             const product = await prisma.product.delete({
-                where:{id: Number(id)}})
+                where:{
+                    id: Number(id),
+                    userId: idUser
+
+                }})
 
             return response.status(201).json({produto: product})
         } catch (error) {
